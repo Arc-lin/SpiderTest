@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 var http = require('http');
 var createHandler = require('github-webhook-handler');
-var handler = createHandler({ path: '/', secret: 'VQNP7,L=tbNfa6iX' });
+var handler = createHandler({ path: '/', secret:'1'});
 // 上面的 secret 保持和 GitHub 后台设置的一致
 
 function run_cmd(cmd, args, callback) {
@@ -21,7 +21,7 @@ http.createServer(function (req, res) {
     res.statusCode = 404;
     res.end('no such location.');
   });
-}).listen(7777);
+}).listen(5555);
 
 handler.on('error', function (err) {
   console.error('Error:', err.message);
@@ -31,7 +31,7 @@ handler.on('push', function (event) {
   console.log('Received a push event for %s to %s',
     event.payload.repository.name,
     event.payload.ref);
-    run_cmd('sh', ['./auto_deploy.sh',event.payload.repository.name], function(text){
+    run_cmd('sh', ['./auto_deploy.sh'], function(text){
       console.log(text);
     });
 });
