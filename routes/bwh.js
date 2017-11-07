@@ -6,42 +6,38 @@ var fs = require('fs');
 var cheerio = require('cheerio');
 var request = require('request');
 var i = 0;
-var url = "http://jandan.net/ooxx/";
+var url = "https://bwh1.net/cart.php";
 //初始url
 
 
 function sendRequest(urlStr,callback,errorCallback) {
-
-var options = { method: 'GET',
-  url: urlStr,
-  headers: {
-     'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
-   }
-  };
-  request(options, function (error, response, body) {
-    if (error) {
-      errorCallback(error);
+  request(urlStr, function(error,response,body) {
+    if (!error && response.statusCode == 200) {
+        callback(body);
     } else {
-      callback(body);
+        errorCallback(error);
     }
   });
-
 }
 
 function parseHtml(body) {
 
   const $ = cheerio.load(body);
 
-  var datas = [];
-  $("#comments ol li").each(function(i,e) {
-      var data = {};
-      var src = $(this).find("img").attr("src");
-      var origin_src = $(this).find(".view_img_link").eq(0).attr("href");
-      data.img_src = "http:" + src;
-      data.origin_src = "http:" + origin_src;
-      datas[i] = data;
+  var profiles = [];
+  var titles = [];
+  $("#whmcsorderfrm table tr:first-child").each(function(i,e) {
+      var profile = {};
+      var td = $(this).children("td");
+      profile.title     = td.eq(0).children("strong").text().trim();
+      profile.price     = td.eq(1).text().trim().split("\n");
+      profile.can_order = (td.eq(2).text().trim() == "(out of stock)") ? "0" : "1";
+
+      var url_str   = td.eq(2).children("input").attr("onclick");
+      profile.url   = url_str;
+      profiles[i] = profile;
   });
-  return datas;
+  return profiles;
 }
 
 function callPack(success,message,data) {
@@ -60,12 +56,8 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-router.post('/', function(req, res, next) {
-    var page = req.body.page;
-    var true_page = 271 - page;
-    var true_url = url+'page-'+true_page;
-    console.log(true_url);
-    sendRequest(true_url, (body) => {
+router.get('/bwh', function(req, res, next) {
+    sendRequest(url, (body) => {
         var result = callPack(true,"",parseHtml(body));
         res.send(result);
     },(error) => {
