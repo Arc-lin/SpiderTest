@@ -68,11 +68,10 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res, next) {
     sendRequest(url,(body) => {
-      var result = getMaxPage(body)
+      var result = getMaxPage(body);
       var maxPage = result.substring(1,4);
-      console.log(maxPage);
       var page = req.body.page;
-      var true_page = maxPage + 1 - page;
+      var true_page = parseInt(maxPage) + 1 - parseInt(page);
       var true_url = url+'page-'+true_page;
       sendRequest(true_url, (body) => {
           var result = callPack(true,"",parseHtml(body));
