@@ -44,6 +44,11 @@ function parseHtml(body) {
   return datas;
 }
 
+function getMaxPage(body) {
+  var maxPage = $("#comments").find(".current-comment-page").eq(0).text();
+  return maxPage;
+}
+
 function callPack(success,message,data) {
   var code = 200;
   var result = {
@@ -62,9 +67,8 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res, next) {
     var page = req.body.page;
-    var true_page = 271 - page;
+    var true_page = 272 - page;
     var true_url = url+'page-'+true_page;
-    console.log(true_url);
     sendRequest(true_url, (body) => {
         var result = callPack(true,"",parseHtml(body));
         res.send(result);
