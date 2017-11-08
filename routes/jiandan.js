@@ -37,6 +37,8 @@ function parseHtml(body) {
       var data = {};
       var src = $(this).find("img").attr("src");
       var origin_src = $(this).find(".view_img_link").eq(0).attr("href");
+      var id = $(this).attr("id").split("-")[1];
+      data.id = id;
       data.img_src = "http:" + src;
       data.origin_src = "http:" + origin_src;
       datas[i] = data;
