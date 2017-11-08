@@ -45,6 +45,7 @@ function parseHtml(body) {
 }
 
 function getMaxPage(body) {
+  const $ = cheerio.load(body);
   var maxPage = $("#comments").find(".current-comment-page").eq(0).text();
   return maxPage;
 }
@@ -66,16 +67,25 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-    var page = req.body.page;
-    var true_page = 272 - page;
-    var true_url = url+'page-'+true_page;
-    sendRequest(true_url, (body) => {
-        var result = callPack(true,"",parseHtml(body));
-        res.send(result);
+    sendRequest(url,(body) => {
+      var result = getMaxPage(body)
+      var maxPage = result.substring(1,4);
+      console.log(maxPage);
+      var page = req.body.page;
+      var true_page = maxPage + 1 - page;
+      var true_url = url+'page-'+true_page;
+      sendRequest(true_url, (body) => {
+          var result = callPack(true,"",parseHtml(body));
+          res.send(result);
+      },(error) => {
+          var result = callPack(false,error,"");
+          res.send(result);
+      });
     },(error) => {
-        var result = callPack(false,error,"");
-        res.send(result);
+      var result = callPack(false,error,"");
+      res.send(result);
     });
+
 });
 
 module.exports = router;
